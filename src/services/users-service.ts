@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { randomUUID } from "node:crypto";
 import { prisma } from "../db";
 
 type RegisterInput = {
@@ -59,6 +60,57 @@ export async function registerUser(input: RegisterInput): Promise<Result> {
     return {
       status: 201,
       body: { data: "OK" },
+    };
+  } catch {
+    return {
+      status: 500,
+      body: { error: "Terjadi kesalahan internal" },
+    };
+  }
+}
+
+type LoginInput = {
+  email?: unknown;
+  password?: unknown;
+};
+
+export async function loginUser(input: LoginInput): Promise<Result> {
+  try {
+    if (!isNonEmptyString(input.email) || !isNonEmptyString(input.password)) {
+      return {
+        status: 400,
+        body: { error: "email dan password wajib diisi" },
+      };
+    }
+
+    const email = input.email.trim();
+    const password = input.password;
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return {
+        status: 401,
+        body: { error: "Email atau Password salah" },
+      };
+    }
+
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return {
+        status: 401,
+        body: { error: "Email atau Password salah" },
+      };
+    }
+
+    const token = randomUUID();
+
+    await prisma.session.create({
+      data: { token, userId: user.id },
+    });
+
+    return {
+      status: 200,
+      body: { data: token },
     };
   } catch {
     return {

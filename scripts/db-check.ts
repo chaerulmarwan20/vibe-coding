@@ -1,7 +1,7 @@
 import { prisma } from "../src/db";
 
 const user = await prisma.user.create({
-  data: { email: "test@example.com", name: "Test User" },
+  data: { email: "test@example.com", name: "Test User", password: "$2a$10$placeholder" },
 });
 console.log("created:", user);
 

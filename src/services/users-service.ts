@@ -8,15 +8,38 @@ type RegisterInput = {
   password?: unknown;
 };
 
-type Result = {
+type Result<T = unknown> = {
   status: number;
-  body: { data: string } | { error: string };
+  body: { data: T } | { error: string };
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+$/;
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function internalError(): Result<never> {
+  return { status: 500, body: { error: "Terjadi kesalahan internal" } };
+}
+
+async function authenticateBearer(authorizationHeader?: string) {
+  if (
+    typeof authorizationHeader !== "string" ||
+    !authorizationHeader.startsWith("Bearer ")
+  ) {
+    return null;
+  }
+
+  const token = authorizationHeader.slice("Bearer ".length).trim();
+  if (token.length === 0) {
+    return null;
+  }
+
+  return prisma.session.findUnique({
+    where: { token },
+    include: { user: true },
+  });
 }
 
 export async function registerUser(input: RegisterInput): Promise<Result> {
@@ -62,10 +85,7 @@ export async function registerUser(input: RegisterInput): Promise<Result> {
       body: { data: "OK" },
     };
   } catch {
-    return {
-      status: 500,
-      body: { error: "Terjadi kesalahan internal" },
-    };
+    return internalError();
   }
 }
 
@@ -113,39 +133,15 @@ export async function loginUser(input: LoginInput): Promise<Result> {
       body: { data: token },
     };
   } catch {
-    return {
-      status: 500,
-      body: { error: "Terjadi kesalahan internal" },
-    };
+    return internalError();
   }
 }
 
 export async function getCurrentUser(
   authorizationHeader?: string
-): Promise<{ status: number; body: { data: unknown } | { error: string } }> {
+): Promise<Result> {
   try {
-    if (
-      typeof authorizationHeader !== "string" ||
-      !authorizationHeader.startsWith("Bearer ")
-    ) {
-      return {
-        status: 401,
-        body: { error: "Unauthorized" },
-      };
-    }
-
-    const token = authorizationHeader.slice("Bearer ".length).trim();
-    if (token.length === 0) {
-      return {
-        status: 401,
-        body: { error: "Unauthorized" },
-      };
-    }
-
-    const session = await prisma.session.findUnique({
-      where: { token },
-      include: { user: true },
-    });
+    const session = await authenticateBearer(authorizationHeader);
     if (!session) {
       return {
         status: 401,
@@ -165,9 +161,29 @@ export async function getCurrentUser(
       },
     };
   } catch {
+    return internalError();
+  }
+}
+
+export async function logoutUser(
+  authorizationHeader?: string
+): Promise<Result<string>> {
+  try {
+    const session = await authenticateBearer(authorizationHeader);
+    if (!session) {
+      return {
+        status: 401,
+        body: { error: "Unauthorized" },
+      };
+    }
+
+    await prisma.session.delete({ where: { token: session.token } });
+
     return {
-      status: 500,
-      body: { error: "Terjadi kesalahan internal" },
+      status: 200,
+      body: { data: "OK" },
     };
+  } catch {
+    return internalError();
   }
 }

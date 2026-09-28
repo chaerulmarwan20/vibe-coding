@@ -171,3 +171,47 @@ export async function getCurrentUser(
     };
   }
 }
+
+export async function logoutUser(
+  authorizationHeader?: string
+): Promise<{ status: number; body: { data: string } | { error: string } }> {
+  try {
+    if (
+      typeof authorizationHeader !== "string" ||
+      !authorizationHeader.startsWith("Bearer ")
+    ) {
+      return {
+        status: 401,
+        body: { error: "Unauthorized" },
+      };
+    }
+
+    const token = authorizationHeader.slice("Bearer ".length).trim();
+    if (token.length === 0) {
+      return {
+        status: 401,
+        body: { error: "Unauthorized" },
+      };
+    }
+
+    const session = await prisma.session.findUnique({ where: { token } });
+    if (!session) {
+      return {
+        status: 401,
+        body: { error: "Unauthorized" },
+      };
+    }
+
+    await prisma.session.delete({ where: { token } });
+
+    return {
+      status: 200,
+      body: { data: "OK" },
+    };
+  } catch {
+    return {
+      status: 500,
+      body: { error: "Terjadi kesalahan internal" },
+    };
+  }
+}

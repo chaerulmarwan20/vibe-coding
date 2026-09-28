@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getCurrentUser,
   loginUser,
+  logoutUser,
   registerUser,
 } from "../services/users-service";
 
@@ -28,6 +29,12 @@ usersRoute.post("/login", async (req, res) => {
 
 usersRoute.get("/current", async (req, res) => {
   const result = await getCurrentUser(req.headers.authorization);
+
+  res.status(result.status).json(result.body);
+});
+
+usersRoute.delete("/logout", async (req, res) => {
+  const result = await logoutUser(req.headers.authorization);
 
   res.status(result.status).json(result.body);
 });

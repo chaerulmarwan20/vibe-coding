@@ -119,3 +119,55 @@ export async function loginUser(input: LoginInput): Promise<Result> {
     };
   }
 }
+
+export async function getCurrentUser(
+  authorizationHeader?: string
+): Promise<{ status: number; body: { data: unknown } | { error: string } }> {
+  try {
+    if (
+      typeof authorizationHeader !== "string" ||
+      !authorizationHeader.startsWith("Bearer ")
+    ) {
+      return {
+        status: 401,
+        body: { error: "Unauthorized" },
+      };
+    }
+
+    const token = authorizationHeader.slice("Bearer ".length).trim();
+    if (token.length === 0) {
+      return {
+        status: 401,
+        body: { error: "Unauthorized" },
+      };
+    }
+
+    const session = await prisma.session.findUnique({
+      where: { token },
+      include: { user: true },
+    });
+    if (!session) {
+      return {
+        status: 401,
+        body: { error: "Unauthorized" },
+      };
+    }
+
+    return {
+      status: 200,
+      body: {
+        data: {
+          id: session.user.id,
+          name: session.user.name,
+          email: session.user.email,
+          created_at: session.user.createdAt,
+        },
+      },
+    };
+  } catch {
+    return {
+      status: 500,
+      body: { error: "Terjadi kesalahan internal" },
+    };
+  }
+}

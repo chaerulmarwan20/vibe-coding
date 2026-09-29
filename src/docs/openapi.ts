@@ -50,15 +50,6 @@ export const openApiDocument = {
           created_at: { type: "string", format: "date-time" },
         },
       },
-      Error: {
-        type: "object",
-        properties: {
-          error: {
-            type: "string",
-            example: "Email atau Password salah",
-          },
-        },
-      },
       HealthStatus: {
         type: "object",
         properties: {
@@ -91,6 +82,7 @@ export const openApiDocument = {
                   type: "object",
                   properties: { data: { type: "string", example: "OK" } },
                 },
+                example: { data: "OK" },
               },
             },
           },
@@ -99,7 +91,30 @@ export const openApiDocument = {
               "Validasi gagal (field kosong, format email salah, melebihi 255 karakter, atau email sudah terdaftar)",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: {
+                  type: "object",
+                  properties: { error: { type: "string" } },
+                },
+                examples: {
+                  "Field kosong": {
+                    value: { error: "Name, email, dan password wajib diisi" },
+                  },
+                  "Format email salah": {
+                    value: { error: "Format email tidak valid" },
+                  },
+                  "Name kepanjangan": {
+                    value: { error: "Name maksimal 255 karakter" },
+                  },
+                  "Email kepanjangan": {
+                    value: { error: "Email maksimal 255 karakter" },
+                  },
+                  "Password kepanjangan": {
+                    value: { error: "Password maksimal 255 karakter" },
+                  },
+                  "Email sudah terdaftar": {
+                    value: { error: "Email sudah terdaftar" },
+                  },
+                },
               },
             },
           },
@@ -107,7 +122,11 @@ export const openApiDocument = {
             description: "Kesalahan internal",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: {
+                  type: "object",
+                  properties: { error: { type: "string" } },
+                },
+                example: { error: "Terjadi kesalahan internal" },
               },
             },
           },
@@ -140,6 +159,9 @@ export const openApiDocument = {
                     },
                   },
                 },
+                example: {
+                  data: "550e8400-e29b-41d4-a716-446655440000",
+                },
               },
             },
           },
@@ -147,7 +169,11 @@ export const openApiDocument = {
             description: "Email atau password kosong",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: {
+                  type: "object",
+                  properties: { error: { type: "string" } },
+                },
+                example: { error: "Email dan password wajib diisi" },
               },
             },
           },
@@ -155,7 +181,11 @@ export const openApiDocument = {
             description: "Email atau password salah",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: {
+                  type: "object",
+                  properties: { error: { type: "string" } },
+                },
+                example: { error: "Email atau Password salah" },
               },
             },
           },
@@ -163,7 +193,11 @@ export const openApiDocument = {
             description: "Kesalahan internal",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: {
+                  type: "object",
+                  properties: { error: { type: "string" } },
+                },
+                example: { error: "Terjadi kesalahan internal" },
               },
             },
           },
@@ -186,6 +220,14 @@ export const openApiDocument = {
                     data: { $ref: "#/components/schemas/User" },
                   },
                 },
+                example: {
+                  data: {
+                    id: 1,
+                    name: "Budi",
+                    email: "budi@example.com",
+                    created_at: "2026-09-29T02:00:00.000Z",
+                  },
+                },
               },
             },
           },
@@ -193,7 +235,11 @@ export const openApiDocument = {
             description: "Token tidak ada atau tidak valid",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: {
+                  type: "object",
+                  properties: { error: { type: "string" } },
+                },
+                example: { error: "Unauthorized" },
               },
             },
           },
@@ -201,7 +247,11 @@ export const openApiDocument = {
             description: "Kesalahan internal",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: {
+                  type: "object",
+                  properties: { error: { type: "string" } },
+                },
+                example: { error: "Terjadi kesalahan internal" },
               },
             },
           },
@@ -222,6 +272,7 @@ export const openApiDocument = {
                   type: "object",
                   properties: { data: { type: "string", example: "OK" } },
                 },
+                example: { data: "OK" },
               },
             },
           },
@@ -229,7 +280,11 @@ export const openApiDocument = {
             description: "Token tidak ada atau tidak valid",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: {
+                  type: "object",
+                  properties: { error: { type: "string" } },
+                },
+                example: { error: "Unauthorized" },
               },
             },
           },
@@ -237,7 +292,11 @@ export const openApiDocument = {
             description: "Kesalahan internal",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: {
+                  type: "object",
+                  properties: { error: { type: "string" } },
+                },
+                example: { error: "Terjadi kesalahan internal" },
               },
             },
           },
@@ -254,6 +313,11 @@ export const openApiDocument = {
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/HealthStatus" },
+                example: {
+                  status: "ok",
+                  database: "connected",
+                  uptime: 12.34,
+                },
               },
             },
           },
@@ -262,6 +326,11 @@ export const openApiDocument = {
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/HealthStatus" },
+                example: {
+                  status: "ok",
+                  database: "unreachable",
+                  uptime: 12.34,
+                },
               },
             },
           },

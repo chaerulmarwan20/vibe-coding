@@ -49,7 +49,10 @@ Aplikasi ini menyediakan API untuk registrasi user, login (menghasilkan token se
 ├── src/
 │   ├── index.ts              # Entry point: setup Express, mounting route, /health
 │   ├── db.ts                 # Instansiasi PrismaClient dengan adapter MariaDB
+│   ├── docs/
+│   │   └── openapi.ts        # Spec OpenAPI 3 untuk Swagger UI
 │   ├── routes/
+│   │   ├── docs-route.ts     # Route Swagger UI (/api-docs)
 │   │   └── users-route.ts    # Route /api/users (delegasi ke service)
 │   ├── services/
 │   │   └── users-service.ts  # Business logic: register, login, current, logout
@@ -92,6 +95,8 @@ Request → Express middleware (express.json)
 - **Database layer** dihandle `src/db.ts` (PrismaClient + adapter MariaDB, connection limit 5).
 
 ## API yang Tersedia
+
+Dokumentasi interaktif tersedia di Swagger UI: `http://localhost:3000/api-docs` (dev server harus jalan). Ringkasan endpoint:
 
 Base URL: `http://localhost:3000`
 
@@ -233,6 +238,8 @@ Server berjalan di `http://localhost:3000`. Verifikasi:
 ```bash
 curl http://localhost:3000/health
 ```
+
+Dokumentasi API interaktif (Swagger UI) tersedia di `http://localhost:3000/api-docs`.
 
 ## Menjalankan Test
 

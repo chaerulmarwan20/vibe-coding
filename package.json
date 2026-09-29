@@ -11,6 +11,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@types/express": "^5.0.6",
+    "@types/swagger-ui-express": "^4.1.8",
     "prisma": "7"
   },
   "peerDependencies": {
@@ -21,6 +22,7 @@
     "@prisma/client": "7",
     "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
-    "mariadb": "^3.5.4"
+    "mariadb": "^3.5.4",
+    "swagger-ui-express": "^5.0.1"
   }
 }

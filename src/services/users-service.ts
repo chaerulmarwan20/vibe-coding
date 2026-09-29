@@ -14,6 +14,7 @@ type Result<T = unknown> = {
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+$/;
+const MAX_LENGTH = 255;
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
@@ -51,13 +52,34 @@ export async function registerUser(input: RegisterInput): Promise<Result> {
     ) {
       return {
         status: 400,
-        body: { error: "name, email, dan password wajib diisi" },
+        body: { error: "Name, email, dan password wajib diisi" },
       };
     }
 
     const name = input.name.trim();
     const email = input.email.trim();
     const password = input.password;
+
+    if (name.length > MAX_LENGTH) {
+      return {
+        status: 400,
+        body: { error: "Name maksimal 255 karakter" },
+      };
+    }
+
+    if (email.length > MAX_LENGTH) {
+      return {
+        status: 400,
+        body: { error: "Email maksimal 255 karakter" },
+      };
+    }
+
+    if (password.length > MAX_LENGTH) {
+      return {
+        status: 400,
+        body: { error: "Password maksimal 255 karakter" },
+      };
+    }
 
     if (!EMAIL_REGEX.test(email)) {
       return {
@@ -99,7 +121,7 @@ export async function loginUser(input: LoginInput): Promise<Result> {
     if (!isNonEmptyString(input.email) || !isNonEmptyString(input.password)) {
       return {
         status: 400,
-        body: { error: "email dan password wajib diisi" },
+        body: { error: "Email dan password wajib diisi" },
       };
     }
 

@@ -14,6 +14,7 @@ type Result<T = unknown> = {
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+$/;
+const MAX_LENGTH = 255;
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
@@ -58,6 +59,27 @@ export async function registerUser(input: RegisterInput): Promise<Result> {
     const name = input.name.trim();
     const email = input.email.trim();
     const password = input.password;
+
+    if (name.length > MAX_LENGTH) {
+      return {
+        status: 400,
+        body: { error: "name maksimal 255 karakter" },
+      };
+    }
+
+    if (email.length > MAX_LENGTH) {
+      return {
+        status: 400,
+        body: { error: "email maksimal 255 karakter" },
+      };
+    }
+
+    if (password.length > MAX_LENGTH) {
+      return {
+        status: 400,
+        body: { error: "password maksimal 255 karakter" },
+      };
+    }
 
     if (!EMAIL_REGEX.test(email)) {
       return {
